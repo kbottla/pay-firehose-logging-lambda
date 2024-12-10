@@ -12,22 +12,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          fetch-depth: '0'
       - name: Get last non-merge commit details
         id: last_commit
         run: |
           commit=$(git rev-list --no-merges -n 1 HEAD)
-          author=$(git log -1 --pretty=format:'%ae' $commit)
+          author=$(git log -1 --pretty=format:'%an' $commit)
           message=$(git log -1 --pretty=format:'%s' $commit)
 
           echo "commit=$commit" >> $GITHUB_OUTPUT
           echo "author=$author" >> $GITHUB_OUTPUT
           echo "message=$message" >> $GITHUB_OUTPUT
-
-      - name: Set up Node.js
-        if: ${{ steps.verify_conditions.outputs.message_match == 'true' && steps.verify_conditions.outputs.author_match == 'true' }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
 
       - name: Verify conditions
         id: verify_conditions
@@ -43,6 +39,12 @@ jobs:
           if [[ "${{ steps.last_commit.outputs.author }}" == "$REQUIRED_AUTHOR" ]]; then
             echo "author_match=true" >> $GITHUB_OUTPUT
           fi
+
+      - name: Set up Node.js
+        if: ${{ steps.verify_conditions.outputs.message_match == 'true' && steps.verify_conditions.outputs.author_match == 'true' }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
       - name: Install dependencies
         if: ${{ steps.verify_conditions.outputs.message_match == 'true' && steps.verify_conditions.outputs.author_match == 'true' }}
