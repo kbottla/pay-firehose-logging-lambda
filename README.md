@@ -1,5 +1,7 @@
 # Cloudwatch logs to Splunk - Firehose transformation lambda
 
+Firehose transformation lambda
+
 ## Licence
 
 [MIT License](LICENSE)
