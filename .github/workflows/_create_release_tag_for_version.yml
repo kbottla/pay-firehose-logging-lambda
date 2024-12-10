@@ -23,25 +23,26 @@ jobs:
           echo "author=$author" >> $GITHUB_OUTPUT
           echo "message=$message" >> $GITHUB_OUTPUT
 
+      - name: Set up Node.js
+        if: ${{ steps.verify_conditions.outputs.message_match == 'true' && steps.verify_conditions.outputs.author_match == 'true' }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
       - name: Verify conditions
         id: verify_conditions
         run: |
           echo "Last non-merge commit author: '${{ steps.last_commit.outputs.author }}'"
           echo "Last non-merge commit message: '${{ steps.last_commit.outputs.message }}'"
 
-          if [[ "${{ steps.last_commit.outputs.message }}" != *"[automated release]"* ]]; then
+          if [[ "${{ steps.last_commit.outputs.message }}" == *"[automated release]"* ]]; then
             echo "message_match=true" >> $GITHUB_OUTPUT
           fi
 
           REQUIRED_AUTHOR="alphagov-pay-ci-concourse"
-          if [[ "${{ steps.last_commit.outputs.author }}" != "$REQUIRED_AUTHOR" ]]; then
+          if [[ "${{ steps.last_commit.outputs.author }}" == "$REQUIRED_AUTHOR" ]]; then
             echo "author_match=true" >> $GITHUB_OUTPUT
           fi
-      - name: Set up Node.js
-        if: ${{ steps.verify_conditions.outputs.message_match == 'true' && steps.verify_conditions.outputs.author_match == 'true' }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
 
       - name: Install dependencies
         if: ${{ steps.verify_conditions.outputs.message_match == 'true' && steps.verify_conditions.outputs.author_match == 'true' }}
