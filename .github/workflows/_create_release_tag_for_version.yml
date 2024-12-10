@@ -16,7 +16,7 @@ jobs:
         id: last_commit
         run: |
           commit=$(git log --no-merges -1 --pretty=format:'%H')
-          author=$(git log -1 --pretty=format:'%an' $commit)
+          author=$(git log -1 --pretty=format:'%ae' $commit)
           message=$(git log -1 --pretty=format:'%s' $commit)
 
           echo "commit=$commit" >> $GITHUB_OUTPUT
@@ -29,32 +29,35 @@ jobs:
           echo "Last non-merge commit author: '${{ steps.last_commit.outputs.author }}'"
           echo "Last non-merge commit message: '${{ steps.last_commit.outputs.message }}'"
 
-          # Check if the commit message contains the required string
           if [[ "${{ steps.last_commit.outputs.message }}" != *"[automated release]"* ]]; then
-            echo "The commit message does not contain '[automated release]'. Skipping release."
-            exit 0
+            echo "message_match=true" >> $GITHUB_OUTPUT
           fi
 
           REQUIRED_AUTHOR="alphagov-pay-ci-concourse"
           if [[ "${{ steps.last_commit.outputs.author }}" != "$REQUIRED_AUTHOR" ]]; then
-            echo "The commit is not an automated release ($REQUIRED_AUTHOR). Skipping release."
-            exit 0
+            echo "author_match=true" >> $GITHUB_OUTPUT
           fi
       - name: Set up Node.js
+        if: ${{ steps.verify_conditions.outputs.message_match == 'true' && steps.verify_conditions.outputs.author_match == 'true' }}
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
       - name: Install dependencies
+        if: ${{ steps.verify_conditions.outputs.message_match == 'true' && steps.verify_conditions.outputs.author_match == 'true' }}
         run: npm ci
 
       - name: Get version from package.json
+        if: ${{ steps.verify_conditions.outputs.message_match == 'true' && steps.verify_conditions.outputs.author_match == 'true' }}
         id: get_version
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Create Git tag
+        if: ${{ steps.verify_conditions.outputs.message_match == 'true' && steps.verify_conditions.outputs.author_match == 'true' }}
         run: |
+          git config user.email 40598480+kbottla@users.noreply.github.com
+          git config user.name kbottla
           git tag -a "v${{ steps.get_version.outputs.version }}" -m "alpha-release-v${{ steps.get_version.outputs.version }}"
           git push origin "v${{ steps.get_version.outputs.version }}"
