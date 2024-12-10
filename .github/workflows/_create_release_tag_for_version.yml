@@ -15,7 +15,7 @@ jobs:
       - name: Get last non-merge commit details
         id: last_commit
         run: |
-          commit=$(git log --no-merges -1 --pretty=format:'%H')
+          commit=$(git rev-list --no-merges -n 1 HEAD)
           author=$(git log -1 --pretty=format:'%ae' $commit)
           message=$(git log -1 --pretty=format:'%s' $commit)
 
@@ -55,7 +55,7 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Create Git tag
+      - name: Create Git release
         if: ${{ steps.verify_conditions.outputs.message_match == 'true' && steps.verify_conditions.outputs.author_match == 'true' }}
         run: |
           git config user.email 40598480+kbottla@users.noreply.github.com

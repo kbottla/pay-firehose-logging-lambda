@@ -16,7 +16,7 @@ jobs:
   tests:
     uses: ./.github/workflows/_run-tests.yml
 
-  tag-release:
+  release-tag:
     needs:
       - tests
     permissions:
