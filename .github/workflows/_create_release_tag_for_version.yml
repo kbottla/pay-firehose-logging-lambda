@@ -1,0 +1,60 @@
+name: Run tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  check-and-create-release-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - name: Get last non-merge commit details
+        id: last_commit
+        run: |
+          commit=$(git log --no-merges -1 --pretty=format:'%H')
+          author=$(git log -1 --pretty=format:'%an' $commit)
+          message=$(git log -1 --pretty=format:'%s' $commit)
+
+          echo "commit=$commit" >> $GITHUB_OUTPUT
+          echo "author=$author" >> $GITHUB_OUTPUT
+          echo "message=$message" >> $GITHUB_OUTPUT
+
+      - name: Verify conditions
+        id: verify_conditions
+        run: |
+          echo "Last non-merge commit author: '${{ steps.last_commit.outputs.author }}'"
+          echo "Last non-merge commit message: '${{ steps.last_commit.outputs.message }}'"
+
+          # Check if the commit message contains the required string
+          if [[ "${{ steps.last_commit.outputs.message }}" != *"[automated release]"* ]]; then
+            echo "The commit message does not contain '[automated release]'. Skipping release."
+            exit 0
+          fi
+
+          REQUIRED_AUTHOR="alphagov-pay-ci-concourse"
+          if [[ "${{ steps.last_commit.outputs.author }}" != "$REQUIRED_AUTHOR" ]]; then
+            echo "The commit is not an automated release ($REQUIRED_AUTHOR). Skipping release."
+            exit 0
+          fi
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get version from package.json
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Create Git tag
+        run: |
+          git tag -a "v${{ steps.get_version.outputs.version }}" -m "alpha-release-v${{ steps.get_version.outputs.version }}"
+          git push origin "v${{ steps.get_version.outputs.version }}"

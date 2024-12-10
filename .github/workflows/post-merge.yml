@@ -1,0 +1,24 @@
+name: Post Merge
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '.github/**'
+
+permissions:
+  contents: read
+
+concurrency: lambda-post-merge
+
+jobs:
+  tests:
+    uses: ./.github/workflows/_run-tests.yml
+
+  tag-release:
+    needs:
+      - tests
+    permissions:
+      contents: write
+    uses: ./.github/workflows/_create_release_tag_for_version.yml
