@@ -1,0 +1,41 @@
+{
+  "name": "firehose-logging-lambda",
+  "version": "1.0.0",
+  "description": "Firehose transformation lambda to process CloudWatch logs to send to Splunk",
+  "main": "index.js",
+  "standard": {
+    "ignore": [
+      "index.test.js"
+    ]
+  },
+  "scripts": {
+    "test": "standard && jest",
+    "format": "prettier --write \"./**/*.{js,json}\"",
+    "build": "npm ci && tsc -noEmit && ts-node ./build.ts"
+  },
+  "engines": {
+    "node": "18.18.0"
+  },
+  "author": "GOV.UK Pay",
+  "devDependencies": {
+    "@aws-sdk/client-firehose": "^3.699.0",
+    "@aws-sdk/client-kinesis": "^3.699.0",
+    "@tsconfig/strictest": "^2.0.5",
+    "@types/aws-lambda": "^8.10.146",
+    "@types/jest": "^29.5.14",
+    "archiver": "^7.0.1",
+    "aws-lambda": "^1.0.7",
+    "esbuild": "^0.24.0",
+    "prettier": "^3.4.2",
+    "standard": "^17.1.2",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": true
+  }
+}
