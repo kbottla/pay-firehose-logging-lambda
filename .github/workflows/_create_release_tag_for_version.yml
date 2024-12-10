@@ -60,5 +60,5 @@ jobs:
         run: |
           git config user.email 40598480+kbottla@users.noreply.github.com
           git config user.name kbottla
-          git tag -a "v${{ steps.get_version.outputs.version }}" -m "alpha-release-v${{ steps.get_version.outputs.version }}"
-          git push origin "v${{ steps.get_version.outputs.version }}"
+          git tag -a "alpha_release-v${{ steps.get_version.outputs.version }}" -m "alpha-release-v${{ steps.get_version.outputs.version }}"
+          git push origin "alpha_release-v${{ steps.get_version.outputs.version }}"
