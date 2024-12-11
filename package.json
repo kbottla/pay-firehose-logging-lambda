@@ -1,6 +1,6 @@
 {
   "name": "firehose-logging-lambda",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Firehose transformation lambda to process CloudWatch logs to send to Splunk",
   "main": "index.js",
   "standard": {
