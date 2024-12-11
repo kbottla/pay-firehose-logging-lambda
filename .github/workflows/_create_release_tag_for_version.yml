@@ -46,10 +46,6 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
-        if: ${{ steps.verify_conditions.outputs.message_match == 'true' && steps.verify_conditions.outputs.author_match == 'true' }}
-        run: npm ci
-
       - name: Get version from package.json
         if: ${{ steps.verify_conditions.outputs.message_match == 'true' && steps.verify_conditions.outputs.author_match == 'true' }}
         id: get_version

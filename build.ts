@@ -17,7 +17,7 @@ build({
   outfile: `dist/${main}`,
   target: `node${engines['node']}`
 }).then(() => {
-  const output = fs.createWriteStream(__dirname + `/dist/${name}-${version}.zip`)
+  const output = fs.createWriteStream(__dirname + `/dist/${name}-v${version}.zip`)
   const archive = archiver('zip', {
     zlib: {level: 9},
   })
